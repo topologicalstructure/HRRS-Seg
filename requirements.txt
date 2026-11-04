@@ -1,0 +1,13 @@
+einops
+fairscale
+fsspec
+ftfy
+matplotlib
+mmengine
+mmsegmentation
+opencv_python_headless
+openpyxl
+regex
+safetensors
+timm
+tqdm

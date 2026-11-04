@@ -1,0 +1,13 @@
+work_dirs
+work_logs
+show_dir
+data
+*.pyc
+*.pt
+*.png
+.vscode
+__pycache__
+*.whl
+visualization
+middle
+.idea

@@ -1,0 +1,1 @@
+python eval.py --config ./configs/cfg_openearthmap.py --work-dir ./work
