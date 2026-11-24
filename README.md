@@ -1,45 +1,128 @@
 # Scale-Adaptive and Confidence-Aware Open-Vocabulary Segmentation for High Resolution Remote Sensing Images
 
-## Dependencies and Installation
-```
-# 1. install SimFeatUp
-# refer to https://github.com/likyoo/SimFeatUp
+HRRS-Seg is a training-free open-vocabulary semantic segmentation framework for high-resolution remote sensing images. It combines Region-Scale Adaptive Feature Fusion (RSAFF) and Confidence-Weighted Regional Voting (CWRV).
 
-# 2. git clone this repository
+## Environment
+
+- Python 3.12
+- CUDA 12.8 or newer is recommended for a Blackwell-based NVIDIA RTX 5060 Laptop GPU
+- NVIDIA GeForce RTX 5060 Laptop GPU, 8 GB VRAM (paper environment)
+- 16 GB RAM is a practical minimum; use CPU or fp16 only for diagnostic workloads
+
+The repository is expected to reproduce the results on Linux or Windows. The training-free evaluation scripts require a CUDA-enabled PyTorch installation.
+
+## Installation
+
+```bash
 git clone https://github.com/topologicalstructure/HRRS-Seg.git
 cd HRRS-Seg
-
-# 3. create new anaconda env
-conda create -n HRRS-Seg python=3.12
-conda activate HRRS-Seg
-
-# 4. install torch and dependencies
-pip install -r requirements.txt
-# The dependent versions are not strict, and in general you only need to pay attention to mmcv and mmsegmentation.
+conda create -n hrrs-seg python=3.12
+conda activate hrrs-seg
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 ```
 
-## Download Pretrained SAM Model
+Install a CUDA build of PyTorch matching the installed NVIDIA driver before installing the remaining requirements:
 
-SAM model can be downloaded from [here](https://huggingface.co/merve/sam2-hiera-large/blob/main/sam2_hiera_large.pt). Please put it in the main directory of this repository(HRRS-Seg/sam2_hiera_large.pt).
-
-## Datasets
-
-Please refer to [dataset_prepare.md](dataset_prepare.md) for dataset preparation.
-
-## Quick Inference
-
+```bash
+python -m pip install torch==2.7.1 torchvision==0.22.1 --index-url https://download.pytorch.org/whl/cu128
+python -m pip install -r requirements.txt
 ```
+
+The bundled `SimFeatUp` implementation is used directly from this repository. If it is unavailable, please refer to [SimFeatUp](https://github.com/likyoo/SimFeatUp) to install it.
+
+If the `mmcv` cannot be installed, please refer to [https://mmcv.readthedocs.io/en/latest/get_started/build.html](https://mmcv.readthedocs.io/en/latest/get_started/build.html) to build it from source.
+
+## Pretrained Weights
+
+Download the SAM2 Large checkpoint from:
+
+```text
+https://huggingface.co/facebook/sam2-hiera-large/blob/main/sam2_hiera_large.pt
+```
+
+Place `sam2_hiera_large.pt` in the repository root:
+
+```text
+HRRS-Seg/sam2_hiera_large.pt
+```
+
+The CLIP/SimFeatUp checkpoint is already included at `simfeatup_dev/weights/xclip_jbu_one_million_aid.ckpt`. The default CLIP backbone is downloaded or resolved by the code; set `HF_ENDPOINT` when network mirrors are unavailable.
+
+## Data Preparation
+
+The 16 supported datasets are not distributed in this repository. Follow [dataset_prepare.md](dataset_prepare.md) to obtain them from their original providers and convert them to the expected directory layout. Each dataset remains subject to its original license or application process. The GT for licensed datasets must be obtained directly from the original provider.
+
+Typical converted layout:
+
+```text
+data/
+  OpenEarthMap/
+  LoveDA/
+  iSAID/
+  potsdam/
+  vaihingen/
+  ...
+```
+
+## Quick Start
+
+Run the bundled OpenEarthMap sample:
+
+```bash
 python demo.py
 ```
 
-## Model evaluation
+This creates `seg_pred.png`. See [docs/USER_GUIDE.md](docs/USER_GUIDE.md) for custom images and vocabulary files.
 
+Run a custom image with a custom class list:
+
+```bash
+python examples/run_custom.py --image demo/oem_koeln_50.tif --classes examples/custom_classes.txt --output seg_pred_custom.png
 ```
-python eval.py --config ./configs/cfg_{DATASET_NAME}.py --work-dir ./work
-python eval.py --config ./configs/cfg_openearthmap.py --work-dir ./work
-python eval.py --config ./configs/cfg_loveda.py --work-dir ./work
+
+## Reproduce Paper Results
+
+Evaluate all 16 datasets:
+
+```bash
+test.bat
 ```
+
+Generate the ablation study used for Table 4:
+
+```bash
+ablation.bat
+```
+
+On Linux or PowerShell, run the equivalent `python eval.py --config ... --work-dir ./work` commands directly. All commands expect the corresponding converted data directory.
+
+Additional reproduction and parameter information is in [docs/REPRODUCE.md](docs/REPRODUCE.md).
+
+## Outputs and Self-Check
+
+Evaluation writes metrics to `work/` and `results.xlsx`. Inference writes:
+
+- a visualization in `seg_pred.png`
+- class IDs in ascending order according to the vocabulary file
+
+The bundled demo should produce a three-panel image containing the input, prediction, and ground truth.
+
+## Citation
+
+```bibtex
+@unpublished{liang2026hrrsseg,
+  title  = {Scale-Adaptive and Confidence-Aware Open-Vocabulary Segmentation for High Resolution Remote Sensing Images},
+  author = {Shuang Liang and Jingyue Wang and Haotian Sun and Guihu Bai and Hongming Zhu and Shengjie Zhao},
+  year   = {2026},
+  note   = {Manuscript submitted to Computers and Geosciences}
+}
+```
+
+## License
+
+The source code is licensed under the Apache License 2.0. See `LICENSE`.
 
 ## Acknowledgement
-This implementation is based on [SegEarth-OV](https://github.com/likyoo/SegEarth-OV). Thanks for the awesome work.
 
+This implementation is based on [SegEarth-OV](https://github.com/likyoo/SegEarth-OV) and [SimFeatUp](https://github.com/likyoo/SimFeatUp).

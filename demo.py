@@ -41,7 +41,7 @@ model = SegEarthSegmentation(
     name_path='./configs/my_name.txt',
     prob_thd=0.1,
     scales_fusion=True,
-    sam_parameters=[16, 0.2, 0.5],
+    sam_parameters=[32, 0.2, 0.5],
     fusion_parameters=[0.125, 0.875, 1, 0.25, 0.875],
     geometric_correction=True,
     scale_normalize=False,
@@ -62,5 +62,4 @@ ax[1].axis('off')
 ax[2].imshow(label, cmap='viridis', vmin=0, vmax=len(name_list) - 1)
 ax[2].axis('off')
 plt.tight_layout()
-# plt.show()
 plt.savefig('seg_pred.png', bbox_inches='tight')

@@ -983,19 +983,15 @@ class SegEarthSegmentation(BaseSegmentor):
 
     def compute_confidence(self, seg_mask, crop_seg_logit):
         """
-        计算子图的置信度图
+        Compute the confidence map for each crop.
 
-        参数:
-        ----------
-        crop_seg_logit : torch.Tensor
-            CLIP计算的相似度/Logit, 形状为 [B, n, H, W], n为类别数
-        seg_mask : torch.Tensor, 可选
-            SAM预分割的无类别mask, 形状为 [B, 1, H, W], 0为背景, 1,2,3...为不同实例标签
+        Args:
+            crop_seg_logit: CLIP logits shaped [B, n, H, W].
+            seg_mask: Optional SAM masks shaped [B, 1, H, W]. ID 0 is
+                background; positive IDs identify instances.
 
-        返回:
-        -------
-        confidence_map : torch.Tensor
-            置信度图, 形状为 [B, 1, H, W]
+        Returns:
+            Confidence map shaped [B, 1, H, W].
         """
         B, n, H, W = crop_seg_logit.shape
         if seg_mask.shape[-2:] != (H, W):
@@ -1009,7 +1005,7 @@ class SegEarthSegmentation(BaseSegmentor):
             margin = (margin - min_v) / (max_v - min_v + 1e-9)
 
         if self.experience_scale:
-            # seg_mask: [B, 1, H, W], 0 为背景，1..N 为 SAM 的预分割区域
+            # 0 is background; positive IDs are SAM regions.
             flat_mask = seg_mask[:, 0].reshape(B, -1).long()
             flat_mask = flat_mask.reshape(-1)
             batch_ids = torch.arange(B, device=seg_mask.device).view(B, 1).expand(B, H * W).reshape(-1)

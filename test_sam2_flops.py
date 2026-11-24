@@ -5,9 +5,9 @@ from sam2.build_sam import build_sam2
 
 
 def main():
-    # 统一在 CPU 上进行 FLOPs 分析，避免设备不匹配与类型冲突
+    # Run the FLOPs analysis on CPU to avoid device and dtype mismatch.
     device = "cpu"
-    p1, p2, p3 = 32, 0.8, 0.8  # 填入你的 sam_parameters (points_per_side = p1)
+    p1, p2, p3 = 32, 0.8, 0.8
 
     print(f"Building SAM2 model on {device}...")
     sam2 = build_sam2("sam2_hiera_l.yaml", "sam2_hiera_large.pt", device=device, apply_postprocessing=False)
@@ -15,30 +15,30 @@ def main():
     sam2 = sam2.float().to(device)
     sam2.eval()
 
-    # 1. 参数量计算
+    # 1. Calculate parameter count.
     total_params = sum(p.numel() for p in sam2.parameters())
     print(f"SAM2 Total Parameters: {total_params / 1e6:.2f} M")
 
-    # 2. FLOPs 计算 (标准 1024x1024 输入)
+    # 2. Calculate FLOPs for a standard 1024 x 1024 input.
     dummy_img = torch.randn(1, 3, 1024, 1024, device=device, dtype=torch.float32)
 
-    # (1) 计算 Image Encoder FLOPs
+    # (1) Calculate image encoder FLOPs.
     print("Calculating Image Encoder FLOPs...")
     encoder_flops = FlopCountAnalysis(sam2.image_encoder, dummy_img).total()
 
-    # (2) 提取特征图并使用多级降级机制解析（防止变量未定义）
+    # (2) Extract backbone features using multiple fallback paths.
     with torch.no_grad():
         if hasattr(sam2, "forward_image"):
             backbone_out = sam2.forward_image(dummy_img)
         else:
             backbone_out = sam2.image_encoder(dummy_img)
 
-        # 预先声明变量，防止 UnboundLocalError
+        # Initialize variables used by the fallback paths.
         pix_feat = None
         image_pe = None
         high_res_feats = None
 
-        # 尝试 1：通过 SAM2 原生的 _prepare_backbone_features
+        # Try SAM2's native _prepare_backbone_features method.
         if hasattr(sam2, "_prepare_backbone_features"):
             try:
                 prep_res = sam2._prepare_backbone_features(backbone_out)
@@ -50,14 +50,14 @@ def main():
             except Exception:
                 pass
 
-        # 尝试 2：如果尝试 1 未能成功提取，进行手动结构化解析
+        # Fall back to parsing the backbone output structure.
         if high_res_feats is None or pix_feat is None:
             if isinstance(backbone_out, dict):
                 fpn = backbone_out.get("backbone_fpn", [])
                 pix_feat = backbone_out.get("vision_features", fpn[-1] if len(fpn) > 0 else None)
                 image_pe = backbone_out.get("vision_pos_enc", None)
 
-                # 处理高分辨率特征的卷积投影
+                # Process high-resolution feature projections.
                 if hasattr(sam2, "conv_s0") and hasattr(sam2, "conv_s1") and len(fpn) >= 2:
                     high_res_feats = [sam2.conv_s0(fpn[0]), sam2.conv_s1(fpn[1])]
                 else:
@@ -66,11 +66,11 @@ def main():
                 pix_feat = backbone_out[-1]
                 high_res_feats = list(backbone_out[:-1])
 
-        # 规范化 image_pe 格式
+        # Normalize image_pe format.
         if isinstance(image_pe, (list, tuple)) and len(image_pe) > 0:
             image_pe = image_pe[-1]
 
-    # (3) 封装 Prompt Encoder + Mask Decoder 追踪单点 FLOPs
+    # (3) Wrap the prompt encoder and mask decoder for FLOPs analysis.
     class SAM2DecoderWrapper(nn.Module):
         def __init__(self, model):
             super().__init__()
@@ -81,7 +81,7 @@ def main():
                 points=(point_coords, point_labels), boxes=None, masks=None
             )
 
-            # 如果 position embedding 缺失，动态生成
+            # Generate dense positional embeddings if they are unavailable.
             if image_pe is None or not isinstance(image_pe, torch.Tensor):
                 image_pe = self.model.sam_prompt_encoder.get_dense_pe()
 
@@ -104,7 +104,7 @@ def main():
         decoder_wrapper, (high_res_feats, pix_feat, image_pe, dummy_point, dummy_label)
     ).total()
 
-    # (4) 汇总统计
+    # (4) Summarize results.
     total_points = p1 * p1
     total_decoder_flops = total_points * single_point_flops
     total_sam2_flops = encoder_flops + total_decoder_flops

@@ -2,13 +2,22 @@ _base_ = './base_config.py'
 
 # model settings
 model = dict(
-    name_path='./configs/cls_vaihingen.txt',
-    prob_thd=0.1,
-    bg_idx=5,
+    name_path='./configs/cls_loveda.txt',
+    prob_thd=0.3,
+    scales_fusion=True,
+    sam_parameters=[16, 0.2, 0.5],
+    fusion_parameters=[0.0, 0.75, 1.0, 0.25, 0.5],
+    geometric_correction=False,
+    scale_normalize=False,
+    aggregation_method='vote',
+    sub_confi_fusion=False,
+    experience_scale=False,
 )
 
 # dataset settings
-dataset_type = 'ISPRSDataset'
+# Category labels: background – 1, building – 2, road – 3, water – 4, barren – 5,forest – 6, agriculture – 7. 
+# And the no-data regions were assigned 0 which should be ignored. 
+dataset_type = 'LoveDADataset'
 data_root = ''
 
 test_pipeline = [
@@ -28,7 +37,8 @@ test_dataloader = dict(
     dataset=dict(
         type=dataset_type,
         data_root=data_root,
+        reduce_zero_label=True,
         data_prefix=dict(
-            img_path='data/vaihingen/img_dir/val',
-            seg_map_path='data/vaihingen/ann_dir/val'),
+            img_path='data/LoveDA/img_dir/val',
+            seg_map_path='data/LoveDA/ann_dir/val'),
         pipeline=test_pipeline))

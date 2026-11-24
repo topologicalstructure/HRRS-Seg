@@ -11,7 +11,7 @@ import custom_datasets
 
 from mmengine.config import Config
 from mmengine.runner import Runner
-from mmengine.registry import init_default_scope  # 引入作用域初始化工具
+from mmengine.registry import init_default_scope
 from mmseg.registry import MODELS
 
 
@@ -27,20 +27,20 @@ def parse_args():
 def main():
     args = parse_args()
 
-    # 1. 加载 Config 并初始化作用域
+    # Load the config and initialize the scope.
     print(f"[1/4] Loading config from {args.config}...")
     cfg = Config.fromfile(args.config)
 
-    # 初始化作用域为 'mmseg'，让注册表能正确定位到 OpenEarthMapDataset
+    # Initialize the mmseg scope so that the OpenEarthMap dataset is registered.
     init_default_scope(cfg.get('default_scope', 'mmseg'))
 
-    # 确保 batch_size 为 1 以准确测量单张图像延迟
+    # Use batch size 1 for per-image latency measurement.
     cfg.test_dataloader.batch_size = 1
 
     print("[2/4] Building DataLoader...")
     test_dataloader = Runner.build_dataloader(cfg.test_dataloader)
 
-    # 2. 构建模型
+    # Build the model.
     print("[3/4] Building SegEarth model...")
     model = MODELS.build(cfg.model)
     model = model.to(args.device)
@@ -57,7 +57,7 @@ def main():
             if idx >= total_iters:
                 break
 
-            # 预热阶段
+            # Warm-up iterations.
             if idx < args.warmup:
                 _ = model.test_step(data_batch)
                 if torch.cuda.is_available():
@@ -65,12 +65,12 @@ def main():
                 print(f"Warmup step [{idx + 1}/{args.warmup}] completed.")
                 continue
 
-            # 正式测量阶段
+            # Measured iterations.
             if torch.cuda.is_available():
                 torch.cuda.synchronize()
             start_time = time.perf_counter()
 
-            # 执行模型推理与后处理
+            # Run model inference and post-processing.
             _ = model.test_step(data_batch)
 
             if torch.cuda.is_available():
@@ -85,7 +85,7 @@ def main():
                   f"Latency: {step_time * 1000:6.2f} ms | "
                   f"Instant FPS: {1.0 / step_time:5.2f}")
 
-    # 3. 统计并输出结果
+    # Print benchmark statistics.
     durations = np.array(durations)
     avg_latency = np.mean(durations)
     median_latency = np.median(durations)

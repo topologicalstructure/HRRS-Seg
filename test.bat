@@ -1,1 +1,16 @@
 python eval.py --config ./configs/cfg_openearthmap.py --work-dir ./work
+python eval.py --config ./configs/cfg_loveda.py --work-dir ./work
+python eval.py --config ./configs/cfg_iSAID.py --work-dir ./work
+python eval.py --config ./configs/cfg_potsdam_without_clutter.py --work-dir ./work
+python eval.py --config ./configs/cfg_vaihingen_without_clutter.py --work-dir ./work
+python eval.py --config ./configs/cfg_uavid.py --work-dir ./work
+python eval.py --config ./configs/cfg_udd5.py --work-dir ./work
+python eval.py --config ./configs/cfg_vdd.py --work-dir ./work
+python eval.py --config ./configs/cfg_whu_aerial.py --work-dir ./work
+python eval.py --config ./configs/cfg_inria.py --work-dir ./work
+python eval.py --config ./configs/cfg_xBD.py --work-dir ./work
+python eval.py --config ./configs/cfg_deepglobe_road.py --work-dir ./work
+python eval.py --config ./configs/cfg_massachusetts_road.py --work-dir ./work
+python eval.py --config ./configs/cfg_spacenet_road.py --work-dir ./work
+python eval.py --config ./configs/cfg_wbs-si.py --work-dir ./work
+python eval.py --config ./configs/cfg_gvlm.py --work-dir ./work

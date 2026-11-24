@@ -165,7 +165,7 @@ def main():
             src_path_list = glob.glob(
                 os.path.join(tmp_dir, dataset_mode, 'img', 'images', '*.png'))
 
-            # 图片多进程切片
+            # Slice images with multiple processes.
             print(f'Start slicing {dataset_mode} images with {max_workers} workers...')
             src_prog_bar = ProgressBar(len(src_path_list))
             src_tasks = [
@@ -188,7 +188,7 @@ def main():
                 lab_path_list = glob.glob(
                     os.path.join(tmp_dir, dataset_mode, 'lab', 'images', '*.png'))
 
-                # 标签多进程切片
+                # Slice labels with multiple processes.
                 print(f'Start slicing {dataset_mode} labels with {max_workers} workers...')
                 lab_prog_bar = ProgressBar(len(lab_path_list))
                 lab_tasks = [

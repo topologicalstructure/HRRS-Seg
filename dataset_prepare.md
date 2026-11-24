@@ -182,11 +182,21 @@ In our default setting (`patch_width`=1000, `patch_height`=1000, `overlap_area`=
 
 All road datasets need to be converted from the original 0-255 labels to 0-1 labels.
 
+```
+python tools/dataset_converters/roadval.py /path/to/dataset -o /path/to/dataset
+```
+
 ## DeepGlobe Road Detection
 
 The data could be downloaded from [here](https://github.com/xiaoyan07/GRNet_GRSet?tab=readme-ov-file).
 
 More details about DeepGlobe can be found [here](https://competitions.codalab.org/competitions/18467#participate-get_data).
+
+This dataset need special processing:
+
+```
+python tools/dataset_converters/deepglobe_road.py /path/to/dataset -o /path/to/dataset
+```
 
 ## Massachusetts Roads Dataset
 
