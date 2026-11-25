@@ -222,7 +222,6 @@ Use the filenames listed in ``tools/dataset_converters/wbs-si_val.txt`` as the v
 
 ## GVLM
 
-The data could be downloaded from [here]([https://www.kaggle.com/datasets/shirshmall/water-body-segmentation-in-satellite-images](https://github.com/zxk688/GVLM)).
+The data could be downloaded from [here](https://github.com/zxk688/GVLM).
 
 Use `tools/GVLM/1GVLM_Img_clip.py` to clip the images and labels into 1024x1024 patches. You will get 536 patches for testing.
-

@@ -22,7 +22,7 @@ The first line is class ID 0. Every other line receives the next ID in file orde
 
 - `seg_pred.png`: a three-panel visualization of input, prediction, and ground truth when the demo label is available.
 - `seg_pred_custom.png`: the custom-image output from `examples/run_custom.py`.
-- Evaluation output: `<work-dir>` and `results.xlsx`.
+- Evaluation output: `work/[EXP_ID]/[EXP_ID].json` and `results.xlsx`.
 
 The default colormap is `viridis`; class IDs are not altered by visualization.
 

@@ -47,7 +47,7 @@ class SegEarthSegmentation(BaseSegmentor):
                  bg_idx=0,
                  feature_up=True,
                  scales_fusion=True,
-                 sam_parameters=[16, 0.2, 0.5],
+                 sam_parameters=[32, 0.2, 0.5],
                  fusion_parameters=[0.125, 0.875, 1, 0.25, 0.875],
                  geometric_correction=True,
                  scale_normalize=True,

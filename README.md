@@ -6,8 +6,8 @@ HRRS-Seg is a training-free open-vocabulary semantic segmentation framework for 
 
 - Python 3.12
 - CUDA 12.8 or newer is recommended for a Blackwell-based NVIDIA RTX 5060 Laptop GPU
-- NVIDIA GeForce RTX 5060 Laptop GPU, 8 GB VRAM (paper environment)
-- 16 GB RAM is a practical minimum; use CPU or fp16 only for diagnostic workloads
+- NVIDIA GeForce RTX 5060 Laptop GPU, 8 GB VRAM, Windows 11 (paper environment)
+- 8 GB VRAM is a practical minimum; use CPU or fp16 only for diagnostic workloads
 
 The repository is expected to reproduce the results on Linux or Windows. The training-free evaluation scripts require a CUDA-enabled PyTorch installation.
 
@@ -35,11 +35,7 @@ If the `mmcv` cannot be installed, please refer to [https://mmcv.readthedocs.io/
 
 ## Pretrained Weights
 
-Download the SAM2 Large checkpoint from:
-
-```text
-https://huggingface.co/facebook/sam2-hiera-large/blob/main/sam2_hiera_large.pt
-```
+Download the SAM2 Large checkpoint from [https://huggingface.co/facebook/sam2-hiera-large/blob/main/sam2_hiera_large.pt](https://huggingface.co/facebook/sam2-hiera-large/blob/main/sam2_hiera_large.pt).
 
 Place `sam2_hiera_large.pt` in the repository root:
 
@@ -101,10 +97,10 @@ Additional reproduction and parameter information is in [docs/REPRODUCE.md](docs
 
 ## Outputs and Self-Check
 
-Evaluation writes metrics to `work/` and `results.xlsx`. Inference writes:
+Evaluation writes metrics to `work/[EXP_ID]/[EXP_ID].json` and `results.xlsx`. Inference writes:
 
 - a visualization in `seg_pred.png`
-- class IDs in ascending order according to the vocabulary file
+- different categories are represented by different colors
 
 The bundled demo should produce a three-panel image containing the input, prediction, and ground truth.
 
@@ -121,7 +117,7 @@ The bundled demo should produce a three-panel image containing the input, predic
 
 ## License
 
-The source code is licensed under the Apache License 2.0. See `LICENSE`.
+The source code is licensed under the Apache License 2.0. See [LICENSE](LICENSE) for details.
 
 ## Acknowledgement
 
